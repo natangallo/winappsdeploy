@@ -1,74 +1,93 @@
-# Esegui lo script di verifica dei requisiti
-& .\verify_requirements.ps1
-
 # Configurazione delle credenziali
 $username = Read-Host "Inserisci il nome utente amministratore"
 $password = Read-Host "Inserisci la password amministratore" -AsSecureString
 $credential = New-Object System.Management.Automation.PSCredential ($username, $password)
 
-# Prompt per i file di elenco
-$clientsFile = Read-Host "Inserisci il percorso del file con l'elenco dei computer (ad esempio, C:\path\to\clients.txt)"
-$applicationsFile = Read-Host "Inserisci il percorso del file con l'elenco delle applicazioni (ad esempio, C:\path\to\applications.txt)"
+# Verifica e creazione della directory dei log
+$logsDirectory = "C:\logs"
+if (-not (Test-Path -Path $logsDirectory)) {
+    New-Item -Path $logsDirectory -ItemType Directory
+}
 
-# File di log
-$logFile = "C:\path\to\logfile.txt"
-"Log iniziale - $(Get-Date)" | Out-File -FilePath $logFile -Append
+# File di log sul computer di amministrazione
+$adminLogFile = "$logsDirectory\admin_logfile.txt"
+"" | Out-File -FilePath $adminLogFile -Append
+"Log iniziale - $(Get-Date)" | Out-File -FilePath $adminLogFile -Append
 
 # Lettura dell'elenco dei client
+$clientsFile = "C:\clients.txt"
+$appsFile = "C:\apps.txt"
+
 if (Test-Path -Path $clientsFile) {
     $clients = Get-Content -Path $clientsFile
 } else {
-    "Il file con l'elenco dei computer non è stato trovato." | Out-File -FilePath $logFile -Append
+    "Il file con l'elenco dei computer non è stato trovato." | Out-File -FilePath $adminLogFile -Append
     exit 1
 }
 
 # Lettura dell'elenco delle applicazioni
-if (Test-Path -Path $applicationsFile) {
-    $applications = Get-Content -Path $applicationsFile
+if (Test-Path -Path $appsFile) {
+    $apps = Get-Content -Path $appsFile
 } else {
-    "Il file con l'elenco delle applicazioni non è stato trovato." | Out-File -FilePath $logFile -Append
+    "Il file con l'elenco delle applicazioni non è stato trovato." | Out-File -FilePath $adminLogFile -Append
     exit 1
 }
 
-# Script da eseguire su ciascun client
+# Ottenere l'indirizzo IP del computer di amministrazione
+$adminIpAddress = (Get-NetIPAddress | Where-Object { $_.AddressFamily -eq 'IPv4' -and $_.InterfaceAlias -ne 'Loopback' } | Select-Object -First 1).IPAddress
+# ScriptBlock per configurare i client remoti e installare/aggiornare le applicazioni
 $scriptBlock = {
-    param ($applications, $credential, $logFile)
+    param ($apps, $adminIpAddress, $credential)
+    
+    # Verifica e creazione della directory dei log locali
+    $remoteLogFile = "C:\logfile.txt"
+    "" | Out-File -FilePath $remoteLogFile -Append
+    "Log iniziale sul client remoto - $(Get-Date)" | Out-File -FilePath $remoteLogFile -Append
 
-    # Verifica se Winget è installato
-    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    foreach ($app in $apps) {
         try {
-            # Scarica e installa Winget
-            Invoke-WebRequest -Uri "https://aka.ms/get-winget" -OutFile "$env:USERPROFILE\Downloads\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-            Add-AppxPackage -Path "$env:USERPROFILE\Downloads\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-            "Winget installato correttamente su $env:COMPUTERNAME - $(Get-Date)" | Out-File -FilePath $logFile -Append
-        } catch {
-            "Errore durante l'installazione di Winget su $env:COMPUTERNAME - $(Get-Date): $_" | Out-File -FilePath $logFile -Append
-        }
-    }
-
-    # Verifica l'installazione di Winget
-    if (Get-Command winget -ErrorAction SilentlyContinue) {
-        # Installazione delle applicazioni specificate
-        foreach ($app in $applications) {
-            try {
-                winget install -e --id $app --accept-package-agreements --accept-source-agreements
-                "Applicazione $app installata su $env:COMPUTERNAME - $(Get-Date)" | Out-File -FilePath $logFile -Append
-            } catch {
-                "Errore durante l'installazione dell'applicazione $app su $env:COMPUTERNAME - $(Get-Date): $_" | Out-File -FilePath $logFile -Append
+            $appInfo = winget list | Where-Object { $_ -match $app }
+            if ($appInfo) {
+                # Se l'applicazione è già installata, aggiorna all'ultima versione
+                winget upgrade --id $app --silent --accept-package-agreements --accept-source-agreements
+                "$app aggiornato correttamente su $env:COMPUTERNAME - $(Get-Date)" | Out-File -FilePath $remoteLogFile -Append
+            } else {
+                # Se l'applicazione non è installata, procedi con l'installazione
+                winget install --id $app --silent --accept-package-agreements --accept-source-agreements
+                "$app installato correttamente su $env:COMPUTERNAME - $(Get-Date)" | Out-File -FilePath $remoteLogFile -Append
             }
+        } catch {
+            "Errore durante l'installazione/aggiornamento di $app su $env:COMPUTERNAME - $(Get-Date): $_" | Out-File -FilePath $remoteLogFile -Append
         }
-    } else {
-        "Winget non è stato installato correttamente su $env:COMPUTERNAME - $(Get-Date)" | Out-File -FilePath $logFile -Append
     }
-}
 
-# Connessione a ciascun client e esecuzione dello script
-foreach ($client in $clients) {
+    # Trasferimento del file di log al computer di amministrazione
+    $adminLogsPath = "\\$adminIpAddress\logs\"
     try {
-        Invoke-Command -ComputerName $client -ScriptBlock $scriptBlock -ArgumentList $applications, $credential, $logFile -Credential $credential
+        New-PSDrive -Name "Z" -PSProvider FileSystem -Root $adminLogsPath -Credential $credential -ErrorAction Stop
+        Copy-Item -Path $remoteLogFile -Destination Z:\${env:COMPUTERNAME}_logfile.txt
+        "Log trasferito correttamente a $adminLogsPath - $(Get-Date)" | Out-File -FilePath $remoteLogFile -Append
     } catch {
-        "Errore durante la connessione a $client - $(Get-Date): $_" | Out-File -FilePath $logFile -Append
+        "Errore durante il trasferimento del log a $adminLogsPath - $(Get-Date): $_" | Out-File -FilePath $remoteLogFile -Append
     }
 }
 
-"Script completato - $(Get-Date)" | Out-File -FilePath $logFile -Append
+# Verifica dei requisiti sui client remoti
+$parametersVerify = @{
+    ComputerName          = $clients
+    InDisconnectedSession = $true
+    FilePath              = "C:\Users\lab\Documents\enable.ps1"
+    Credential            = $credential
+}
+Invoke-Command @parametersVerify
+
+# Connessione a ciascun client e esecuzione dello script di setup e installazione/aggiornamento
+$parametersExecute = @{
+    ComputerName          = $clients
+    ScriptBlock           = $scriptBlock
+    ArgumentList          = $apps, $adminIpAddress, $credential
+    Credential            = $credential
+}
+$results = Invoke-Command @parametersExecute
+
+"Script di distribuzione completato - $(Get-Date)" | Out-File -FilePath $adminLogFile -Append
