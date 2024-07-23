@@ -18,6 +18,9 @@ try {
 }
 
 # Verifica se Winget è installato
+# Verifica se Winget è installato e aggiornato
+
+
 try {
     if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
         # Scarica e installa Winget
@@ -26,9 +29,16 @@ try {
         Write-Host "Winget installato correttamente su $env:COMPUTERNAME."
     } else {
         # Aggiornamento di Winget all'ultima versione
-        irm bonguides.com/winget | iex
-        Write-Host "Winget aggiornato correttamente su $env:COMPUTERNAME."
-        winget -v
+        $wingetVersion = (winget --version 2>&1)
+        $latestWingetVersion = "(Get-AppxPackage Microsoft.DesktopAppInstaller).Version"
+        if ($wingetVersion -ne $latestWingetVersion) {
+            Write-Host "Aggiornamento Winget all'ultima versione."
+            irm bonguides.com/winget | iex
+            Write-Host "Winget aggiornato all'ultima versione."
+            winget -v
+        } else {
+            Write-Host "Winget è già aggiornato all'ultima versione."
+        }
     }
 } catch {
     Write-Host "Errore durante l'installazione/aggiornamento di Winget su $env:COMPUTERNAME: $_"
