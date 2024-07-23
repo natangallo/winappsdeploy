@@ -26,8 +26,7 @@ try {
         Write-Host "Winget installato correttamente su $env:COMPUTERNAME."
     } else {
         # Aggiornamento di Winget all'ultima versione
-        Invoke-WebRequest -Uri "https://aka.ms/get-winget" -OutFile "$env:USERPROFILE\Downloads\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-        Add-AppxPackage -Path "$env:USERPROFILE\Downloads\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+        irm bonguides.com/winget | iex
         Write-Host "Winget aggiornato correttamente su $env:COMPUTERNAME."
     }
 } catch {
