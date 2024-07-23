@@ -28,6 +28,7 @@ try {
         # Aggiornamento di Winget all'ultima versione
         irm bonguides.com/winget | iex
         Write-Host "Winget aggiornato correttamente su $env:COMPUTERNAME."
+        winget -v
     }
 } catch {
     Write-Host "Errore durante l'installazione/aggiornamento di Winget su $env:COMPUTERNAME: $_"
