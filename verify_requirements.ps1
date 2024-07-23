@@ -13,12 +13,11 @@ Set-Item wsman:\localhost\Client\TrustedHosts -Value "*"
 
 # Verifica se Winget è installato e aggiornato
 $wingetVersion = (winget --version 2>&1)
-$latestWingetVersion = "v1.3.2091"
+$latestWingetVersion = "(Get-AppxPackage Microsoft.DesktopAppInstaller).Version"
 
 if ($wingetVersion -ne $latestWingetVersion) {
     Write-Host "Aggiornamento Winget all'ultima versione."
-    Invoke-WebRequest -Uri "https://aka.ms/getwinget" -OutFile "$env:USERPROFILE\Downloads\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-    Add-AppxPackage -Path "$env:USERPROFILE\Downloads\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
+    irm bonguides.com/winget | iex
     Write-Host "Winget aggiornato all'ultima versione."
 } else {
     Write-Host "Winget è già aggiornato all'ultima versione."
