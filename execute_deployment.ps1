@@ -116,4 +116,4 @@ $parametersExecute = @{
 $results = Invoke-Command @parametersExecute
 
 "Script di distribuzione completato - $(Get-Date)" | Out-File -FilePath $adminLogFile -Append
-Set-ExecutionPolicy Restricted -Force
+
