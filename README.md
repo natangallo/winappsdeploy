@@ -115,9 +115,8 @@ Verificare che tutte le credenziali di amministratore utilizzate sui client sian
 
 Per maggiori dettagli e per scaricare gli script, visitare i seguenti link:
 
-- [verify_requirements.ps1](#)
+- [verify_requirements.ps1](https://github.com/natangallo/winappsdeploy/blob/6503819a40e62ada21595b0355952d64796a29fb/setup_client_remotely.ps1)
+- [execute_deployment.ps1](https://github.com/natangallo/winappsdeploy/blob/da751a427390f24cdce5a15de72c21307d75bc54/execute_deployment.ps1)
+- [verify_requirements.ps1](https://github.com/natangallo/winappsdeploy/blob/6503819a40e62ada21595b0355952d64796a29fb/verify_requirements.ps1)
 - [clients.txt](#)
 - [apps.txt](#)
-- [execute_deployment.ps1](#)
-
-Pubblicato su GitHub alla repository [Deployment-Scripts](#).
