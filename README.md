@@ -54,13 +54,20 @@ Questa guida descrive i passaggi necessari per configurare e distribuire softwar
 
 ### 3. Preparazione dei File Necessari per la Distribuzione
 
+Di Default, la procedura prevede che i file di Log vengano posizionati su C:.
+Diversamente si potrà aggiornare lo ([scritp](https://github.com/natangallo/winappsdeploy/blob/da751a427390f24cdce5a15de72c21307d75bc54/execute_deployment.ps1)) in modo da utilizzare un path differente.
+
 Sul computer di amministrazione (la macchina virtuale), preparare i seguenti file:
 
 1. **Script di verifica requisiti ([verify_requirements.ps1](https://github.com/natangallo/winappsdeploy/blob/6503819a40e62ada21595b0355952d64796a29fb/setup_client_remotely.ps1))**
 2. **Script di produzione ([execute_deployment.ps1](https://github.com/natangallo/winappsdeploy/blob/da751a427390f24cdce5a15de72c21307d75bc54/execute_deployment.ps1))**
-3. **Script di verifica requisiti client ([verify_requirements.ps1](https://github.com/natangallo/winappsdeploy/blob/6503819a40e62ada21595b0355952d64796a29fb/verify_requirements.ps1))**
-4. **Elenco degli IP/nomi dei computer ([clients.txt](#))**
-3. **Elenco dei software ([apps.txt](#))**
+3. **Elenco degli IP/nomi dei computer ([clients.txt](#))**
+4. **Elenco dei software ([apps.txt](#))**
+
+Considerata la base di lavoro in C:, è necessario prevedere alcune cose.
+
+1. Creare una cartella "Logs", che è necessario che venga condivisa in rete, per trasferire i log dei client.
+2. Trasferire e eepositare i file clients.txt e apps.txt
 
 ### 4. Esecuzione degli Script di Verifica e Distribuzione
 
