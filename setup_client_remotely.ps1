@@ -43,3 +43,4 @@ try {
 } catch {
     Write-Host "Errore durante l'installazione/aggiornamento di Winget su $env:COMPUTERNAME: $_"
 }
+Set-ExecutionPolicy Restricted -Force
