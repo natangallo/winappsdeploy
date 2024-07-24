@@ -1,4 +1,4 @@
-# README: Guida alla Distribuzione Remota di Software su Client Windows e macOS tramite PowerShell
+# Guida alla Distribuzione Remota di Software su Client Windows e macOS tramite PowerShell
 
 ## Introduzione
 
