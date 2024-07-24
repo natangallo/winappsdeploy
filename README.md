@@ -1,62 +1,122 @@
-## Documentazione per la Distribuzione Remota di Software su PC Windows
+# README: Guida alla Distribuzione Remota di Software su Client Windows e macOS tramite PowerShell
 
-### Introduzione
+## Introduzione
 
-Questa documentazione descrive il processo per configurare e utilizzare PowerShell su un PC Windows di amministrazione per distribuire software su più PC Windows remoti. La procedura include la verifica dei requisiti sulla macchina di amministrazione e l'esecuzione effettiva dei comandi di distribuzione.
+Questa guida descrive i passaggi necessari per configurare e distribuire software su computer client Windows e macOS in rete tramite PowerShell e Apple Remote Desktop. L'obiettivo è centralizzare la distribuzione dei software utilizzando un dispositivo Apple su cui è installato Apple Remote Desktop e virtualizzare Windows per gestire i client Windows.
 
-### Requisiti
+## Requisiti
 
-#### Requisiti della Macchina di Amministrazione
+### Hardware e Software
 
-- **Sistema Operativo**: Windows 10 o successivo
-- **PowerShell**: Versione 5.1 o successiva
-- **WSMan**: Deve essere installato e configurato
-- **Winget**: Deve essere installato e aggiornato all'ultima versione
+- **Mac con processore ARM**
+  - Installare VMWare Fusion Pro (versione gratuita).
+  - Installare Apple Remote Desktop per la distribuzione di pacchetti e script su macOS.
+- **Macchina Virtuale con Windows 11 Pro per ARM**
+  - Utilizzare VMWare Fusion Pro per la virtualizzazione.
 
-#### Requisiti dei PC Remoti
+### Configurazione dei Client
 
-- **Sistema Operativo**: Windows 10 o successivo
-- **WinRM**: Deve essere abilitato e configurato per accettare comandi remoti
-- **Accesso Amministrativo**: Le credenziali amministrative devono essere disponibili per eseguire comandi remoti e installare software
+- **Client Windows**
+  - Verificare le credenziali di amministratore locali univoche.
+  - Scaricare e applicare gli aggiornamenti di sistema.
+  - Trasferire lo script `setup_client.ps1` su ciascun client.
+  - Aprire PowerShell in modalità amministratore.
+  - Eseguire il comando `Set-ExecutionPolicy RemoteSigned -Force`.
+  - Lanciare lo script di PowerShell `setup_client.ps1`.
+  - Al termine dell'esecuzione dello script, eseguire il comando `Set-ExecutionPolicy Restricted -Force`.
 
-### Procedura
+### Note Importanti
 
-#### 1. Verifica dei Requisiti sulla Macchina di Amministrazione
+- Le funzionalità di gestione remota di Windows non sono compatibili con macOS su processore ARM.
+- È necessario installare Windows Pro su una macchina virtuale tramite VMWare Fusion Pro per raggiungere l'obiettivo.
 
-Prima di eseguire la distribuzione del software, è necessario assicurarsi che la macchina di amministrazione soddisfi tutti i requisiti.
+## Macro Passaggi
 
-1. **Installazione e Configurazione di WSMan**:
-   - Verificare se il modulo WSMan è installato e configurarlo se necessario.
-   - Utilizzare `Install-WindowsFeature` per installare il modulo WSMan, se non già presente.
-   - Configurare `winrm quickconfig` e impostare gli host attendibili.
+1. **Configurazione dei computer client in rete.**
+2. **Installazione e configurazione della macchina virtuale su VMWare Fusion.**
+3. **Preparazione dei file necessari per la distribuzione su Windows.**
+4. **Esecuzione degli script di verifica e distribuzione.**
 
-2. **Verifica e Aggiornamento di Winget**:
-   - Verificare se Winget è installato e aggiornato all'ultima versione disponibile.
-   - Se Winget non è aggiornato, scaricare e installare l'ultima versione utilizzando `Add-AppxPackage`.
+## Dettagli dei Passaggi
 
-#### 2. Esecuzione Effettiva dei Comandi di Distribuzione
+### 1. Configurazione dei Computer Client in Rete
 
-Dopo aver verificato che la macchina di amministrazione soddisfi tutti i requisiti, eseguire lo script di distribuzione per installare il software sui PC remoti.
+1. Verificare le credenziali di amministratore locali univoche.
+2. Scaricare e applicare gli aggiornamenti di sistema.
+3. Trasferire lo script `setup_client.ps1` su ciascun client.
+4. Aprire PowerShell in modalità amministratore.
+5. Eseguire il comando `Set-ExecutionPolicy RemoteSigned -Force`.
+6. Lanciare lo script di PowerShell `setup_client.ps1`.
+7. Al termine dell'esecuzione dello script, eseguire il comando `Set-ExecutionPolicy Restricted -Force`.
 
-1. **Configurazione delle Credenziali**:
-   - Richiedere all'utente di inserire le credenziali di amministratore per connettersi ai PC remoti.
+### 2. Installazione e Configurazione della Macchina Virtuale su VMWare Fusion
 
-2. **Lettura dei File di Elenco**:
-   - Leggere l'elenco dei PC remoti e delle applicazioni da installare da file forniti dall'utente.
-   - Verificare l'esistenza dei file di elenco e leggere il loro contenuto.
+1. Installare VMWare Fusion Pro (versione gratuita) su macOS.
+2. Creare una nuova macchina virtuale con Windows 11 per ARM.
+3. Impostare la RAM e il processore in modo adeguato.
+4. Durante la procedura di setup, disattivare la scheda di rete.
+5. Seguire la procedura di installazione di Windows 11:
+   - La procedura di attivazione richiede un account Microsoft.
+   - Premere `Shift + F10` per aprire il prompt dei comandi.
+   - Eseguire il comando `oobe\bypassnro`. La macchina si riavvierà.
+   - Al riavvio, continuare il setup senza connessione Internet e con funzionalità limitate.
+6. Installare VMWare Tools una volta concluso il setup e riavviare.
+7. Scaricare e applicare gli aggiornamenti di sistema.
 
-3. **Esecuzione dello Script sui PC Remoti**:
-   - Connettersi a ciascun PC remoto utilizzando PowerShell Remoting (`Invoke-Command`).
-   - Verificare e installare Winget se necessario sui PC remoti.
-   - Installare le applicazioni specificate sui PC remoti utilizzando Winget.
+### 3. Preparazione dei File Necessari per la Distribuzione
 
-### Avvio dello Script di Distribuzione
+Sul computer di amministrazione (la macchina virtuale), preparare i seguenti file:
 
-Per avviare il processo di distribuzione, eseguire lo script di esecuzione che include la verifica dei requisiti e l'esecuzione dei comandi di distribuzione.
+1. **Script di verifica requisiti ([verify_requirements.ps1](#))**
+2. **Elenco degli IP/nomi dei computer ([clients.txt](#))**
+3. **Elenco dei software ([apps.txt](#))**
+4. **Script di produzione ([execute_deployment.ps1](#))**
 
-1. Eseguire lo script di verifica dei requisiti (`verify_requirements.ps1`) sulla macchina di amministrazione.
-2. Eseguire lo script di esecuzione effettiva dei comandi di distribuzione (`execute_deployment.ps1`).
+### 4. Esecuzione degli Script di Verifica e Distribuzione
 
-### Conclusioni
+1. Aprire PowerShell in modalità amministratore.
+2. Eseguire il comando `Set-ExecutionPolicy RemoteSigned -Force`.
+3. Lanciare lo script di verifica dei requisiti (`verify_requirements.ps1`):
 
-Questo documento fornisce una guida dettagliata per configurare un ambiente di distribuzione remota del software utilizzando PowerShell su una macchina di amministrazione Windows. Include la verifica e l'aggiornamento di tutti i requisiti necessari e descrive i passaggi per eseguire la distribuzione remota del software sui PC Windows remoti. Per eseguire correttamente la procedura, è essenziale seguire tutti i passaggi descritti e garantire che tutti i requisiti siano soddisfatti.
+   ```powershell
+   .\verify_requirements.ps1
+   ```
+
+4. Dopo aver lanciato lo script di verifica dei requisiti, eseguire il comando di ricerca dell'ID delle app da installare:
+
+   ```powershell
+   winget search <nome_dell_app>
+   ```
+
+5. Prendere nota degli ID delle app da installare e inserirli nel file `apps.txt`.
+6. Compilare il file `clients.txt` con l'elenco degli IP dei PC client sui quali verranno installati gli applicativi.
+7. Lanciare lo script di installazione e distribuzione (`execute_deployment.ps1`):
+
+   ```powershell
+   .\execute_deployment.ps1
+   ```
+
+## Ulteriori Considerazioni
+
+### Prevedere una VM di Testing
+
+Si consiglia di installare una VM con Windows come sistema di testing prima della distribuzione massiva per verificare che tutti gli script funzionino correttamente e che non ci siano problemi di compatibilità o errori.
+
+### Configurazione della Cartella di Log
+
+Assicurarsi che la cartella di log sul computer di amministrazione sia condivisa e accessibile dai client remoti per il trasferimento dei file di log post-installazione.
+
+### Verifica delle Credenziali
+
+Verificare che tutte le credenziali di amministratore utilizzate sui client siano corrette e abbiano i permessi necessari per eseguire gli script e le installazioni.
+
+---
+
+Per maggiori dettagli e per scaricare gli script, visitare i seguenti link:
+
+- [verify_requirements.ps1](#)
+- [clients.txt](#)
+- [apps.txt](#)
+- [execute_deployment.ps1](#)
+
+Pubblicato su GitHub alla repository [Deployment-Scripts](#).
