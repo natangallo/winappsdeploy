@@ -49,7 +49,8 @@ Questa guida descrive i passaggi necessari per configurare e distribuire softwar
    - Eseguire il comando `oobe\bypassnro`. La macchina si riavvierà.
    - Al riavvio, continuare il setup senza connessione Internet e con funzionalità limitate.
 6. Installare VMWare Tools una volta concluso il setup e riavviare.
-7. Scaricare e applicare gli aggiornamenti di sistema.
+7. Riattivare la scheda di rete e impostare l'interfaccia in base alle necessità.
+8. Scaricare e applicare gli aggiornamenti di sistema.
 
 ### 3. Preparazione dei File Necessari per la Distribuzione
 
