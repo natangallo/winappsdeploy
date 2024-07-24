@@ -3,6 +3,8 @@
 # Script studiato e creato da Natan Gallo
 # v00 Luglio 2024
 #
+# Rucordarsi di verificare le restrizione di esecuzione degli script poershell e di
+# eseguire il comando "set-executionpolicy remotesigned -Force".
 #########################################################################################################
 #
 #########################################################################################################
@@ -114,3 +116,4 @@ $parametersExecute = @{
 $results = Invoke-Command @parametersExecute
 
 "Script di distribuzione completato - $(Get-Date)" | Out-File -FilePath $adminLogFile -Append
+Set-ExecutionPolicy Restricted -Force
