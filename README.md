@@ -70,7 +70,7 @@ Sul computer di amministrazione (la macchina virtuale), preparare i seguenti fil
 1. **Script di verifica requisiti ([verify_requirements.ps1](#))**
 2. **Elenco degli IP/nomi dei computer ([clients.txt](#))**
 3. **Elenco dei software ([apps.txt](#))**
-4. **Script di produzione ([execute_deployment.ps1](#))**
+4. **Script di produzione ([execute_deployment.ps1](https://github.com/natangallo/winappsdeploy/blob/da751a427390f24cdce5a15de72c21307d75bc54/execute_deployment.ps1))**
 
 ### 4. Esecuzione degli Script di Verifica e Distribuzione
 
