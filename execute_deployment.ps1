@@ -1,10 +1,22 @@
+#########################################################################################################
+#
+# Script studiato e creato da Natan Gallo
+# v00 Luglio 2024
+#
+#########################################################################################################
+#
+#########################################################################################################
+# Variabili di Sistema che possono essere modificate a seconda del contesto e necessità
+#########################################################################################################
+#
 # Configurazione delle credenziali
 $username = Read-Host "Inserisci il nome utente amministratore"
 $password = Read-Host "Inserisci la password amministratore" -AsSecureString
 $credential = New-Object System.Management.Automation.PSCredential ($username, $password)
 
 # Verifica e creazione della directory dei log
-$logsDirectory = "C:\logs"
+$fileRoot = "C:" # "\\serveriporname" può esssere modificato in caso di cartella di rete esterna.
+$logsDirectory = "$fileRoot\logs"
 if (-not (Test-Path -Path $logsDirectory)) {
     New-Item -Path $logsDirectory -ItemType Directory
 }
@@ -15,8 +27,15 @@ $adminLogFile = "$logsDirectory\admin_logfile.txt"
 "Log iniziale - $(Get-Date)" | Out-File -FilePath $adminLogFile -Append
 
 # Lettura dell'elenco dei client
-$clientsFile = "C:\clients.txt"
-$appsFile = "C:\apps.txt"
+$clientsFile = "$fileRoot\clients.txt"
+$appsFile = "$fileRoot\apps.txt"
+
+# Ottenere l'indirizzo IP del computer di amministrazione
+# Verrà utilizzato per trasferire i log di installazione dei client
+# Se si è valutato di spostare i log su un file server esterno, considerare di attivare la seguente variabile e commentare la seccessiva
+# $adminIpAddress = "\\$fileRoot"
+$remoteIPAddress = (Get-NetIPAddress | Where-Object { $_.AddressFamily -eq 'IPv4' -and $_.InterfaceAlias -ne 'Loopback' } | Select-Object -First 1).IPAddress
+$adminIpAddress = "\\$remoteIPAddress"
 
 if (Test-Path -Path $clientsFile) {
     $clients = Get-Content -Path $clientsFile
@@ -33,9 +52,13 @@ if (Test-Path -Path $appsFile) {
     exit 1
 }
 
-# Ottenere l'indirizzo IP del computer di amministrazione
-$adminIpAddress = (Get-NetIPAddress | Where-Object { $_.AddressFamily -eq 'IPv4' -and $_.InterfaceAlias -ne 'Loopback' } | Select-Object -First 1).IPAddress
-# ScriptBlock per configurare i client remoti e installare/aggiornare le applicazioni
+#########################################################################################################
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#         ScriptBlock per configurare i client remoti e installare/aggiornare le applicazioni           #
+#                     Da qui in avanti si consiglia di non modificare i dati                            #
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#########################################################################################################
+
 $scriptBlock = {
     param ($apps, $adminIpAddress, $credential)
     
@@ -62,7 +85,7 @@ $scriptBlock = {
     }
 
     # Trasferimento del file di log al computer di amministrazione
-    $adminLogsPath = "\\$adminIpAddress\logs\"
+    $adminLogsPath = "$adminIpAddress\logs\"
     try {
         New-PSDrive -Name "Z" -PSProvider FileSystem -Root $adminLogsPath -Credential $credential -ErrorAction Stop
         Copy-Item -Path $remoteLogFile -Destination Z:\${env:COMPUTERNAME}_logfile.txt
@@ -76,7 +99,7 @@ $scriptBlock = {
 $parametersVerify = @{
     ComputerName          = $clients
     InDisconnectedSession = $true
-    FilePath              = "C:\Users\lab\Documents\enable.ps1"
+    FilePath              = "$fileRoot\verify_requirements.ps1"
     Credential            = $credential
 }
 Invoke-Command @parametersVerify
