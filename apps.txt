@@ -1,0 +1,4 @@
+Adobe.Acrobat.Pro
+Google.Chrome
+Mozilla.Firefox
+Notepad++.Notepad++
