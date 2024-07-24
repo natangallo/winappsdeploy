@@ -67,7 +67,7 @@ Questa guida descrive i passaggi necessari per configurare e distribuire softwar
 
 Sul computer di amministrazione (la macchina virtuale), preparare i seguenti file:
 
-1. **Script di verifica requisiti ([verify_requirements.ps1](#))**
+1. **Script di verifica requisiti ([verify_requirements.ps1](https://github.com/natangallo/winappsdeploy/blob/6503819a40e62ada21595b0355952d64796a29fb/setup_client_remotely.ps1))**
 2. **Elenco degli IP/nomi dei computer ([clients.txt](#))**
 3. **Elenco dei software ([apps.txt](#))**
 4. **Script di produzione ([execute_deployment.ps1](https://github.com/natangallo/winappsdeploy/blob/da751a427390f24cdce5a15de72c21307d75bc54/execute_deployment.ps1))**
