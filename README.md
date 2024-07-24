@@ -14,17 +14,6 @@ Questa guida descrive i passaggi necessari per configurare e distribuire softwar
 - **Macchina Virtuale con Windows 11 Pro per ARM**
   - Utilizzare VMWare Fusion Pro per la virtualizzazione.
 
-### Configurazione dei Client
-
-- **Client Windows**
-  - Verificare le credenziali di amministratore locali univoche.
-  - Scaricare e applicare gli aggiornamenti di sistema.
-  - Trasferire lo script `setup_client.ps1` su ciascun client.
-  - Aprire PowerShell in modalità amministratore.
-  - Eseguire il comando `Set-ExecutionPolicy RemoteSigned -Force`.
-  - Lanciare lo script di PowerShell `setup_client.ps1`.
-  - Al termine dell'esecuzione dello script, eseguire il comando `Set-ExecutionPolicy Restricted -Force`.
-
 ### Note Importanti
 
 - Le funzionalità di gestione remota di Windows non sono compatibili con macOS su processore ARM.
@@ -43,11 +32,10 @@ Questa guida descrive i passaggi necessari per configurare e distribuire softwar
 
 1. Verificare le credenziali di amministratore locali univoche.
 2. Scaricare e applicare gli aggiornamenti di sistema.
-3. Trasferire lo script `setup_client.ps1` su ciascun client.
+3. Trasferire lo script `ssetup_client_remotely.ps1` su ciascun client.
 4. Aprire PowerShell in modalità amministratore.
 5. Eseguire il comando `Set-ExecutionPolicy RemoteSigned -Force`.
 6. Lanciare lo script di PowerShell `setup_client.ps1`.
-7. Al termine dell'esecuzione dello script, eseguire il comando `Set-ExecutionPolicy Restricted -Force`.
 
 ### 2. Installazione e Configurazione della Macchina Virtuale su VMWare Fusion
 
