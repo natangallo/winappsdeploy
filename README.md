@@ -26,3 +26,4 @@ Questa guida descrive i passaggi necessari per configurare e distribuire softwar
 3. **Preparazione dei file necessari per la distribuzione su Windows.**
 4. **Esecuzione degli script di verifica e distribuzione.**
 
+# Vai alla ([Wiki](https://github.com/natangallo/winappsdeploy/wiki)) per seguire la guida passo passo di questo processo!
